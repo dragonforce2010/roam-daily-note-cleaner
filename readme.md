@@ -1,7 +1,6 @@
 # 🎉 Empty Notes Cleaner for Roam Research
 
 ## 🚀 Overview
-
 Welcome to **Empty Notes Cleaner**! This powerful Roam Research plugin is designed to help you keep your daily notes organized and clutter-free. Say goodbye to empty daily notes and hello to a more streamlined workflow! ✨
 
 ## 🌟 Features

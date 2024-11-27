@@ -6,28 +6,8 @@ module.exports = {
   output: {
     filename: 'extension.js',
     path: path.resolve(__dirname, '.'),
-    library: {
-      type: 'module'
-    },
-    globalObject: 'this'
-  },
-  experiments: {
-    outputModule: true
   },
   mode: 'production',
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          format: {
-            comments: false,
-          },
-        },
-        extractComments: false,
-      }),
-    ],
-  },
   module: {
     rules: [
       {
@@ -36,18 +16,14 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: [
-              ['@babel/preset-env', {
-                targets: {
-                  chrome: "58",
-                  firefox: "57"
-                },
-                modules: false
-              }]
-            ]
-          },
-        },
-      },
-    ],
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
   },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  }
 }; 

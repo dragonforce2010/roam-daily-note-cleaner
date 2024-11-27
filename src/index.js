@@ -1,9 +1,9 @@
-import { log } from './utils/logger';
-import { DEBUG, DEFAULT_CLEAN_TIME } from './config/constants';
-import { createSettingsPanel } from './settings/panel';
-import { getDailyNotes, isPageEmpty, deletePage } from './services/noteService';
-import { createLogEntry } from './services/logService';
-import { calculateNextRunTime } from './utils/dateUtils';
+import { log } from "./utils/logger";
+import { DEBUG, DEFAULT_CLEAN_TIME } from "./config/constants";
+import { createSettingsPanel } from "./settings/panel";
+import { getDailyNotes, isPageEmpty, deletePage } from "./services/noteService";
+import { createLogEntry } from "./services/logService";
+import { calculateNextRunTime } from "./utils/dateUtils";
 
 let cleaningInterval;
 
@@ -13,13 +13,13 @@ async function cleanEmptyDailyNotes(extensionAPI) {
     const dailyNotes = await getDailyNotes();
     log(`Found ${dailyNotes.length} empty daily notes`, dailyNotes);
     let cleanCount = 0;
-    let cleanedPages = []
+    let cleanedPages = [];
 
     for (const { uid, title } of dailyNotes) {
-      const isEmpty = await isPageEmpty(uid)
-      if(!isEmpty) {
+      const isEmpty = await isPageEmpty(uid);
+      if (!isEmpty) {
         log(`Page ${title} (${uid}) is not empty`);
-        continue
+        continue;
       }
 
       log(`Deleting page: ${title} (${uid})`);
@@ -32,8 +32,11 @@ async function cleanEmptyDailyNotes(extensionAPI) {
     }
 
     if (cleanCount > 0 && extensionAPI.settings?.get("enable-logging")) {
-      await createLogEntry(extensionAPI,
-        `Cleaned ${cleanCount} empty daily notes at ${new Date().toLocaleString()}, cleaned pages are as follows: ${cleanedPages.join(", ")}`,
+      await createLogEntry(
+        extensionAPI,
+        `Cleaned ${cleanCount} empty daily notes at ${new Date().toLocaleString()}, cleaned pages are as follows: ${cleanedPages.join(
+          ", "
+        )}`
       );
     }
   } catch (error) {
@@ -42,7 +45,10 @@ async function cleanEmptyDailyNotes(extensionAPI) {
 }
 
 function scheduleNextClean(nextCleanTime, extensionAPI) {
-  const cleanTime = nextCleanTime || extensionAPI.settings?.get("clean-time") || DEFAULT_CLEAN_TIME;
+  const cleanTime =
+    nextCleanTime ||
+    extensionAPI.settings?.get("clean-time") ||
+    DEFAULT_CLEAN_TIME;
   const [hours, minutes] = cleanTime.split(":").map(Number);
   const nextRun = calculateNextRunTime(hours, minutes);
   const msToNextRun = nextRun.getTime() - Date.now();
@@ -54,7 +60,10 @@ function scheduleNextClean(nextCleanTime, extensionAPI) {
 
   cleaningInterval = setTimeout(() => {
     cleanEmptyDailyNotes(extensionAPI);
-    cleaningInterval = setInterval(() =>cleanEmptyDailyNotes(extensionAPI), 24 * 60 * 60 * 1000);
+    cleaningInterval = setInterval(
+      () => cleanEmptyDailyNotes(extensionAPI),
+      24 * 60 * 60 * 1000
+    );
   }, msToNextRun);
 
   return nextRun;
@@ -62,21 +71,23 @@ function scheduleNextClean(nextCleanTime, extensionAPI) {
 
 function onload({ extensionAPI }) {
   log("Plugin loading...");
-  log('extensionAPI', extensionAPI);
-  
-  extensionAPI.settings.panel.create(createSettingsPanel(extensionAPI, scheduleNextClean));
+  log("extensionAPI", extensionAPI);
+
+  extensionAPI.settings.panel.create(
+    createSettingsPanel(extensionAPI, scheduleNextClean)
+  );
   scheduleNextClean(null, extensionAPI);
 
-  if (DEBUG) {
-    window.emptyNotesCleaner = {
-      cleanNow: () => cleanEmptyDailyNotes(extensionAPI),
-      getScheduleInfo: () => ({
-        cleanTime: extensionAPI.settings?.get("clean-time") || DEFAULT_CLEAN_TIME,
-        enableLogging: extensionAPI.settings?.get("enable-logging"),
-        nextRun: new Date(Date.now() + (cleaningInterval?._idleTimeout || 0)).toLocaleString()
-      })
-    };
-  }
+  window.emptyNotesCleaner = {
+    cleanNow: () => cleanEmptyDailyNotes(extensionAPI),
+    getScheduleInfo: () => ({
+      cleanTime: extensionAPI.settings?.get("clean-time") || DEFAULT_CLEAN_TIME,
+      enableLogging: extensionAPI.settings?.get("enable-logging"),
+      nextRun: new Date(
+        Date.now() + (cleaningInterval?._idleTimeout || 0)
+      ).toLocaleString(),
+    }),
+  };
 }
 
 function onunload() {
@@ -90,5 +101,5 @@ function onunload() {
 
 export default {
   onload,
-  onunload
-}; 
+  onunload,
+};
