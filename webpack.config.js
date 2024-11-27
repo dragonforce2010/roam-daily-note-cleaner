@@ -5,7 +5,7 @@ module.exports = {
   entry: './src/index.js',
   output: {
     filename: 'extension.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '.'),
     library: {
       type: 'module'
     },
